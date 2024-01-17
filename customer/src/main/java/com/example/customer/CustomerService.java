@@ -1,14 +1,21 @@
 package com.example.customer;
 
+
+import com.example.clients.fraud.FraudClient;
+import com.example.clients.fraud.FraudulentCheckResponse;
+import com.example.clients.notification.NotificationClient;
+import com.example.clients.notification.NotificationRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+
 
 @Service
 @AllArgsConstructor
 public class CustomerService {
     private final CustomerRepository customerRepository;
-    private final RestTemplate restTemplate;
+    private final FraudClient fraudClient;
+
+    private final NotificationClient notificationClient;
 
 
     public void registerCustomer(CustomerRegistrationRequest request) {
@@ -20,13 +27,22 @@ public class CustomerService {
 
         customerRepository.saveAndFlush(customer);
 
-        FraudulentCheckResponse fraudResponse = restTemplate.getForObject(
-                "http://localhost:8081/api/v1/fraud-check/{customerId}",
-                FraudulentCheckResponse.class,
-                customer.getId()
-        );
-        if (fraudResponse.isFraudster()){
+        FraudulentCheckResponse fraudResponse = fraudClient.isFraudster(customer.getId());
+
+        if (fraudResponse.isFraudster()) {
             throw new IllegalArgumentException("fraudster");
         }
+
+        notificationClient.sendNotification(
+                new NotificationRequest(
+                        customer.getId(),
+                        customer.getEmail(),
+                        String.format("Hi %s, welcome to Amigoscode...",
+                                customer.getFirstName())
+                )
+        );
     }
 }
+
+
+
