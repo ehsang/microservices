@@ -13,6 +13,7 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+
   pgadmin:
     container_name: pgadmin
     image: dpage/pgadmin4
@@ -27,6 +28,7 @@ services:
     networks:
       - postgres
     restart: unless-stopped
+
   zipkin:
     image: openzipkin/zipkin
     container_name: zipkin
@@ -34,6 +36,7 @@ services:
       - "9411:9411"
     networks:
       - spring
+
   rabbitmq:
     image: rabbitmq:3.9.11-management-alpine
     container_name: rabbitmq
@@ -43,71 +46,78 @@ services:
     networks:
       - spring
 
-#  eureka-server:
-#    image: amigoscode/eureka-server:latest
-#    container_name: eureka-server
-#    ports:
-#      - "8761:8761"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - spring
-#    depends_on:
-#      - zipkin
-#  apigw:
-#    image: amigoscode/apigw:latest
-#    container_name: apigw
-#    ports:
-#      - "8083:8083"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - spring
-#    depends_on:
-#      - zipkin
-#      - eureka-server
-#  customer:
-#    image: amigoscode/customer:latest
-#    container_name: customer
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - spring
-#      - postgres
-#    depends_on:
-#      - zipkin
-#      - postgres
-#      - rabbitmq
-#  fraud:
-#    image: amigoscode/fraud:latest
-#    container_name: fraud
-#    ports:
-#      - "8081:8081"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - spring
-#      - postgres
-#    depends_on:
-#      - zipkin
-#      - postgres
-#      - rabbitmq
-#  notification:
-#    image: amigoscode/notification:latest
-#    container_name: notification
-#    ports:
-#      - "8082:8082"
-#    environment:
-#      - SPRING_PROFILES_ACTIVE=docker
-#    networks:
-#      - spring
-#      - postgres
-#    depends_on:
-#      - zipkin
-#      - postgres
-#      - rabbitmq
+  eureka-server:
+    image: ehsang3/eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - zipkin
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+
+  apigw:
+    image: ehsang3/apigw:latest
+    container_name: apigw
+    ports:
+      - "8083:8083"
+    depends_on:
+      - zipkin
+      - eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+
+  customer:
+    image: ehsang3/customer:latest
+    container_name: customer
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
+
+  fraud:
+    image: ehsang3/fraud:latest
+    container_name: fraud
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - eureka-server
+      - postgres
+      - rabbitmq
+
+  notification:
+    image: ehsang3/notification:latest
+    container_name: notification
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      - spring
+      - postgres
+    depends_on:
+      - zipkin
+      - postgres
+      - rabbitmq
+
 networks:
   postgres:
     driver: bridge
