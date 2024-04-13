@@ -9,10 +9,6 @@ import org.springframework.context.annotation.PropertySources;
 
 @SpringBootApplication
 @EnableEurekaClient
-@PropertySources({
-        @PropertySource(value = "classpath:application-${spring.profiles.active}.yml",
-                ignoreResourceNotFound = true)
-})
 public class FraudApplication {
 
     public static void main(String[] args) {
